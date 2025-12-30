@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const { NetlifyAPI } = require('netlify');
+const { exec } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -54,113 +54,49 @@ app.post('/generate-portfolio', async (req, res) => {
     }
 });
 
-// Deploy to Netlify endpoint
+// Deploy to Netlify endpoint (CLI BASED – FIXED)
 app.post('/deploy-to-netlify', async (req, res) => {
     try {
-        console.log('Starting Netlify deployment process...');
-        
-        // Check if Netlify token is available
-        const netlifyToken = process.env.NETLIFY_TOKEN || process.env.NETLIFY_AUTH_TOKEN;
-        
-        if (!netlifyToken) {
-            throw new Error(
-                'Netlify token not found. Please set NETLIFY_TOKEN environment variable.\n\n' +
-                'To get your Netlify token:\n' +
-                '1. Go to https://app.netlify.com/user/applications\n' +
-                '2. Click "New access token"\n' +
-                '3. Give it a name and generate\n' +
-                '4. Set it as environment variable: NETLIFY_TOKEN=your_token_here\n\n' +
-                'For local development, create a .env file with: NETLIFY_TOKEN=your_actual_token'
-            );
+        console.log('🚀 Starting Netlify deployment...');
+
+        const token = process.env.NETLIFY_TOKEN;
+        if (!token) {
+            throw new Error('NETLIFY_TOKEN not set in Render environment');
         }
 
-        // Ensure dist directory exists
         const distDir = path.join(__dirname, 'dist');
+
         if (!fs.existsSync(distDir)) {
-            fs.mkdirSync(distDir, { recursive: true });
+            throw new Error('dist folder not found. Generate portfolio first.');
         }
 
-        // Create a basic index.html in dist if it doesn't exist
-        const indexPath = path.join(distDir, 'index.html');
-        if (!fs.existsSync(indexPath)) {
-            const defaultHtml = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .loading { text-align: center; padding: 50px; }
-    </style>
-</head>
-<body>
-    <div class="loading">
-        <h1>Portfolio Site</h1>
-        <p>Your portfolio will be deployed here shortly...</p>
-    </div>
-</body>
-</html>`;
-            fs.writeFileSync(indexPath, defaultHtml);
-        }
+        // IMPORTANT: single-line command (Render/Linux safe)
+        const command = `npx netlify deploy --dir="${distDir}" --prod --site=adventure-portfolio-builder --auth="${token}"`;
 
-        console.log('Setting up Netlify client...');
-        
-        // Initialize Netlify client
-        const client = new NetlifyAPI(netlifyToken);
-        
-        console.log('Looking for existing sites...');
-        
-        // Get existing sites or create new one
-        let sites = await client.listSites();
-        let site = sites.find(s => s.name === 'adventure-portfolio-builder');
-        
-        if (!site) {
-            console.log('Creating new site...');
-            site = await client.createSite({
-                body: {
-                    name: 'adventure-portfolio-builder',
-                    custom_domain: null
-                }
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.error('❌ Netlify CLI Error:', stderr || error.message);
+                return res.status(500).json({
+                    success: false,
+                    message: stderr || error.message
+                });
+            }
+
+            console.log('✅ Deployment Success');
+            console.log(stdout);
+
+            res.json({
+                success: true,
+                message: 'Portfolio deployed successfully!',
+                output: stdout
             });
-            console.log('New site created:', site.url);
-        } else {
-            console.log('Found existing site:', site.url);
-        }
-
-        console.log('Deploying files...');
-        
-        // Deploy the dist folder
-        const deployment = await client.deploy(site.id, distDir, {
-            message: 'Automated deployment from Adventure Portfolio Builder'
-        });
-
-        console.log('Deployment successful!');
-        
-        res.json({
-            success: true,
-            message: 'Portfolio deployed to Netlify successfully!',
-            url: site.url,
-            deploymentId: deployment.id
         });
 
     } catch (error) {
-        console.error('Netlify deployment error:', error);
-        
-        let errorMessage = error.message;
-        
-        // Provide more helpful error messages
-        if (error.message.includes('Access Denied') || error.message.includes('401')) {
-            errorMessage = 'Netlify authentication failed. Please check your access token.';
-        } else if (error.message.includes('ENOENT')) {
-            errorMessage = 'Deployment files not found. Please generate a portfolio first.';
-        }
-        
+        console.error('❌ Deployment failed:', error.message);
         res.status(500).json({
             success: false,
-            message: 'Deployment failed: ' + errorMessage,
-            debug: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            message: error.message
         });
     }
 });
@@ -384,7 +320,7 @@ app.listen(PORT, () => {
     console.log(`🌐 REAL Netlify deployment enabled!`);
     
     // Check if Netlify token is available
-    const netlifyToken = process.env.NETLIFY_TOKEN || process.env.NETLIFY_AUTH_TOKEN;
+    const netlifyToken = process.env.NETLIFY_TOKEN;
     if (!netlifyToken) {
         console.warn('\n⚠️  WARNING: Netlify token not found!');
         console.log('To enable Netlify deployments, set the NETLIFY_TOKEN environment variable.');
@@ -392,6 +328,4 @@ app.listen(PORT, () => {
     } else {
         console.log('✅ Netlify token detected - Deployment ready!\n');
     }
-
 });
-
