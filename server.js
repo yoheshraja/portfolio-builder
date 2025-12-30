@@ -73,7 +73,8 @@ app.post('/deploy-to-netlify', async (req, res) => {
 
 
         // IMPORTANT: single-line command (Render/Linux safe)
-        const command = `npx netlify deploy --dir="${distDir}" --prod --site=adventure-portfolio-builder --auth="${token}"`;
+     const command = `npx netlify deploy --dir="${distDir}" --prod --site="SITE_ID_HERE" --auth="${token}"`;
+
 
         exec(command, (error, stdout, stderr) => {
             if (error) {
@@ -337,5 +338,6 @@ app.listen(PORT, () => {
         console.log('✅ Netlify token detected - Deployment ready!\n');
     }
 });
+
 
 
