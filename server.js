@@ -108,7 +108,7 @@ app.post('/deploy-to-netlify', async (req, res) => {
         console.log('Setting up Netlify client...');
         
         // Initialize Netlify client
-        const client = new netlify(netlifyToken);
+        const client = new NetlifyAPI(netlifyToken);
         
         console.log('Looking for existing sites...');
         
@@ -394,3 +394,4 @@ app.listen(PORT, () => {
     }
 
 });
+
