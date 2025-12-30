@@ -87,11 +87,17 @@ app.post('/deploy-to-netlify', async (req, res) => {
             console.log('✅ Deployment Success');
             console.log(stdout);
 
-            res.json({
-                success: true,
-                message: 'Portfolio deployed successfully!',
-                output: stdout
-            });
+          // Extract site URL from Netlify CLI output
+const urlMatch = stdout.match(/https?:\/\/[^\s]+/);
+const siteUrl = urlMatch ? urlMatch[0] : null;
+
+res.json({
+    success: true,
+    message: 'Portfolio deployed successfully!',
+    url: siteUrl,
+    output: stdout
+});
+
         });
 
     } catch (error) {
@@ -331,4 +337,5 @@ app.listen(PORT, () => {
         console.log('✅ Netlify token detected - Deployment ready!\n');
     }
 });
+
 
