@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adventure Portfolio Builder</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="logo">
+                    <i class="fas fa-rocket"></i>
+                    Adventure Portfolio Builder
+                </h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" id="save-btn">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <button class="btn btn-secondary" id="undo-btn" disabled>
+                        <i class="fas fa-undo"></i> Undo
+                    </button>
+                    <button class="btn btn-secondary" id="redo-btn" disabled>
+                        <i class="fas fa-redo"></i> Redo
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Form Section -->
+            <div class="form-section">
+                <div class="form-tabs">
+                    <div class="tab active" data-tab="basic">
+                        <i class="fas fa-user-astronaut"></i> Basic Info
+                    </div>
+                    <div class="tab" data-tab="content">
+                        <i class="fas fa-puzzle-piece"></i> Content
+                    </div>
+                    <div class="tab" data-tab="design">
+                        <i class="fas fa-palette"></i> Design
+                    </div>
+                </div>
+
+                <div class="form-container">
+                    <!-- Drag & Drop Sections -->
+                    <div class="sections-container" id="sections-container">
+                        <!-- Sections will be dynamically added here -->
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="btn btn-download" id="download-btn">
+                            <i class="fas fa-download"></i> Download Code
+                        </button>
+                        <button class="btn btn-host" id="host-btn">
+                        <i class="fas fa-rocket"></i> Deploy to Netlify
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="preview-section">
+                <div class="preview-header">
+                    <h3>Live Preview</h3>
+                    <div class="preview-controls">
+                        <button class="btn btn-small" id="refresh-preview">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="preview-container">
+                    <iframe id="portfolio-preview" class="preview-frame"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container" class="toast-container"></div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>Processing your portfolio...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates -->
+    <template id="section-template">
+        <div class="form-section-item" data-section="">
+            <div class="section-header">
+                <div class="section-handle">
+                    <i class="fas fa-grip-vertical"></i>
+                </div>
+                <h4 class="section-title"></h4>
+                <div class="section-actions">
+                    <button class="btn-icon btn-remove-section">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="section-content"></div>
+        </div>
+    </template>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
