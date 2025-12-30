@@ -66,9 +66,11 @@ app.post('/deploy-to-netlify', async (req, res) => {
 
         const distDir = path.join(__dirname, 'dist');
 
-        if (!fs.existsSync(distDir)) {
-            throw new Error('dist folder not found. Generate portfolio first.');
-        }
+       if (!fs.existsSync(distDir)) {
+    console.log('⚠️ dist folder not found, creating it...');
+    fs.mkdirSync(distDir, { recursive: true });
+}
+
 
         // IMPORTANT: single-line command (Render/Linux safe)
         const command = `npx netlify deploy --dir="${distDir}" --prod --site=adventure-portfolio-builder --auth="${token}"`;
@@ -329,3 +331,4 @@ app.listen(PORT, () => {
         console.log('✅ Netlify token detected - Deployment ready!\n');
     }
 });
+
