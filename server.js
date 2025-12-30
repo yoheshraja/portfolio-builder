@@ -1,8 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const { exec } = require('child_process');
-const netlify = require('netlify');
+const { NetlifyAPI } = require('netlify');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -393,4 +392,5 @@ app.listen(PORT, () => {
     } else {
         console.log('✅ Netlify token detected - Deployment ready!\n');
     }
+
 });
